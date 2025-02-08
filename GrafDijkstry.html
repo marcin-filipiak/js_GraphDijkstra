@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorytm Dijkstry - Najkrótsza Ścieżka</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        textarea {
+            width: 500px;
+            height: 400px;
+            font-family: monospace;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fff;
+        }
+        canvas {
+            border: 2px solid #333;
+            background-color: white;
+            border-radius: 8px;
+        }
+        .output {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Algorytm Dijkstry - Najkrótsza Ścieżka</h1>
+    <div class="container">
+        <textarea id="graphData">{
+    "nodes": [
+        { "id": "A", "start": true, "end": false },
+        { "id": "B", "start": false, "end": false },
+        { "id": "C", "start": false, "end": true }
+    ],
+    "edges": [
+        { "source": "A", "target": "B", "weight": 20 },
+        { "source": "B", "target": "C", "weight": 10 },
+        { "source": "A", "target": "C", "weight": 15 }
+    ]
+}</textarea>
+        <canvas width="600" height="400" id="graphCanvas"></canvas>
+    </div>
+    <button onclick="renderGraph()">Rysuj</button>
+    <div class="output" id="shortestPath"></div>
+    <script>
+function renderGraph() {
+    const graph = JSON.parse(document.getElementById("graphData").value);
+    const canvas = document.getElementById("graphCanvas");
+    const ctx = canvas.getContext("2d");
+    const width = canvas.width;
+    const height = canvas.height;
+    const radius = 20;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const nodePositions = {};
+    const angleStep = (2 * Math.PI) / graph.nodes.length;
+
+    graph.nodes.forEach((node, index) => {
+        const angle = index * angleStep;
+        const x = width / 2 + Math.cos(angle) * 100;
+        const y = height / 2 + Math.sin(angle) * 100;
+        nodePositions[node.id] = { x, y };
+    });
+
+    // Rysowanie krawędzi
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "black"; // Zapewnienie, że tekst będzie widoczny
+    ctx.font = "14px Arial";
+
+    graph.edges.forEach(edge => {
+        const { x: x1, y: y1 } = nodePositions[edge.source];
+        const { x: x2, y: y2 } = nodePositions[edge.target];
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    });
+
+    // Rysowanie węzłów
+    graph.nodes.forEach(node => {
+        const { x, y } = nodePositions[node.id];
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = node.start ? "green" : node.end ? "red" : "blue";
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "white";
+        ctx.fillText(node.id, x - 5, y + 5);
+    });
+
+    // Rysowanie wag na krawędziach (przeniesione na koniec)
+    ctx.fillStyle = "black"; // Przywrócenie koloru dla tekstu wag
+    graph.edges.forEach(edge => {
+        const { x: x1, y: y1 } = nodePositions[edge.source];
+        const { x: x2, y: y2 } = nodePositions[edge.target];
+        ctx.fillText(edge.weight, (x1 + x2) / 2, (y1 + y2) / 2);
+    });
+
+    document.getElementById("shortestPath").innerText = "Najkrótsza ścieżka: " + findShortestPath(graph).join(" -> ");
+}
+
+ function findShortestPath(graph) {
+            const distances = {};
+            const previous = {};
+            const unvisited = new Set(graph.nodes.map(node => node.id));
+            let startNode = graph.nodes.find(node => node.start).id;
+            let endNode = graph.nodes.find(node => node.end).id;
+            
+            graph.nodes.forEach(node => distances[node.id] = Infinity);
+            distances[startNode] = 0;
+            
+            while (unvisited.size > 0) {
+                let currentNode = [...unvisited].reduce((a, b) => distances[a] < distances[b] ? a : b);
+                if (currentNode === endNode) break;
+                unvisited.delete(currentNode);
+    
+                graph.edges.filter(edge => edge.source === currentNode || edge.target === currentNode).forEach(edge => {
+                    let neighbor = edge.source === currentNode ? edge.target : edge.source;
+                    if (!unvisited.has(neighbor)) return;
+                    let newDist = distances[currentNode] + edge.weight;
+                    if (newDist < distances[neighbor]) {
+                        distances[neighbor] = newDist;
+                        previous[neighbor] = currentNode;
+                    }
+                });
+            }
+            
+            let path = [];
+            let step = endNode;
+            while (step) {
+                path.unshift(step);
+                step = previous[step];
+            }
+            return path;
+        }
+        
+    </script>
+</body>
+</html>
