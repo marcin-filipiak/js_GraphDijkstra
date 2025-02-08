@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algorytm Dijkstry - Najkrótsza Ścieżka</title>
+    <title>Dijkstra's Algorithm Visualizer</title>
     <style>
         body {
             display: flex;
@@ -57,7 +57,7 @@
     </style>
 </head>
 <body>
-    <h1>Algorytm Dijkstry - Najkrótsza Ścieżka</h1>
+    <h1>Dijkstra's Algorithm Visualizer</h1>
     <div class="container">
         <textarea id="graphData">{
     "nodes": [
@@ -73,7 +73,7 @@
 }</textarea>
         <canvas width="600" height="400" id="graphCanvas"></canvas>
     </div>
-    <button onclick="renderGraph()">Rysuj</button>
+    <button onclick="renderGraph()">Plot</button>
     <div class="output" id="shortestPath"></div>
     <script>
 function renderGraph() {
@@ -130,7 +130,7 @@ function renderGraph() {
         ctx.fillText(edge.weight, (x1 + x2) / 2, (y1 + y2) / 2);
     });
 
-    document.getElementById("shortestPath").innerText = "Najkrótsza ścieżka: " + findShortestPath(graph).join(" -> ");
+    document.getElementById("shortestPath").innerText = "Shortest path: " + findShortestPath(graph).join(" -> ");
 }
 
  function findShortestPath(graph) {
