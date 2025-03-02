@@ -1,3 +1,5 @@
+<img src="GraphDijkstra.jpg" alt="Dijkstra Algorithm">
+
 This project is a **Dijkstra's Algorithm Visualizer**, designed to illustrate the shortest path calculation in a weighted graph.  
 
 ### Features:
